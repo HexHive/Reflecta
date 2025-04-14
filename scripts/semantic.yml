@@ -1,0 +1,6 @@
+---
+InitFileDir: CORPUS
+BuiltinObjFile: BUILTIN
+IsWeakType: true
+BasicTypes:
+  - ANYTYPE

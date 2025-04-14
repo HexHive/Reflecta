@@ -1,0 +1,233 @@
+diff --git a/ports/unix/alloc.c b/ports/unix/alloc.c
+index e9cf52158..7f8a658bb 100644
+--- a/ports/unix/alloc.c
++++ b/ports/unix/alloc.c
+@@ -80,9 +80,9 @@ void mp_unix_free_exec(void *ptr, size_t size) {
+ }
+ 
+ void mp_unix_mark_exec(void) {
+-    for (mmap_region_t *rg = MP_STATE_VM(mmap_region_head); rg != NULL; rg = rg->next) {
+-        gc_collect_root(rg->ptr, rg->len / sizeof(mp_uint_t));
+-    }
++    // for (mmap_region_t *rg = MP_STATE_VM(mmap_region_head); rg != NULL; rg = rg->next) {
++    //     gc_collect_root(rg->ptr, rg->len / sizeof(mp_uint_t));
++    // }
+ }
+ 
+ #if MICROPY_FORCE_PLAT_ALLOC_EXEC
+diff --git a/ports/unix/main.c b/ports/unix/main.c
+index b065706ba..5faa4f9d6 100644
+--- a/ports/unix/main.c
++++ b/ports/unix/main.c
+@@ -427,7 +427,7 @@ STATIC void pre_process_options(int argc, char **argv) {
+                     mp_thread_set_realtime();
+                 #endif
+                 } else {
+-                invalid_arg:
++                // invalid_arg:
+                     exit(invalid_args());
+                 }
+                 a++;
+@@ -790,5 +790,5 @@ void nlr_jump_fail(void *val) {
+     mp_hal_stdio_mode_orig();
+     #endif
+     fprintf(stderr, "FATAL: uncaught NLR %p\n", val);
+-    exit(1);
++    assert(!"uncaught NLR");
+ }
+diff --git a/ports/unix/modffi.c b/ports/unix/modffi.c
+index bc585f864..b1d2b7867 100644
+--- a/ports/unix/modffi.c
++++ b/ports/unix/modffi.c
+@@ -292,7 +292,7 @@ STATIC void call_py_func_with_lock(ffi_cif *cif, void *ret, void **args, void *u
+     #if MICROPY_ENABLE_SCHEDULER
+     mp_sched_lock();
+     #endif
+-    gc_lock();
++    // gc_lock();
+ 
+     if (nlr_push(&nlr) == 0) {
+         for (uint i = 0; i < cif->nargs; i++) {
+@@ -310,7 +310,7 @@ STATIC void call_py_func_with_lock(ffi_cif *cif, void *ret, void **args, void *u
+         mp_obj_print_exception(MICROPY_ERROR_PRINTER, MP_OBJ_FROM_PTR(nlr.ret_val));
+     }
+ 
+-    gc_unlock();
++    // gc_unlock();
+     #if MICROPY_ENABLE_SCHEDULER
+     mp_sched_unlock();
+     #endif
+diff --git a/ports/unix/mpconfigport.h b/ports/unix/mpconfigport.h
+index c20aff168..60b2ec9cb 100644
+--- a/ports/unix/mpconfigport.h
++++ b/ports/unix/mpconfigport.h
+@@ -103,7 +103,7 @@ typedef long mp_off_t;
+ #endif
+ 
+ // Always enable GC.
+-#define MICROPY_ENABLE_GC           (1)
++#define MICROPY_ENABLE_GC           (0)
+ 
+ #if !(defined(MICROPY_GCREGS_SETJMP) || defined(__x86_64__) || defined(__i386__) || defined(__thumb2__) || defined(__thumb__) || defined(__arm__))
+ // Fall back to setjmp() implementation for discovery of GC pointers in registers.
+diff --git a/ports/unix/mpthreadport.c b/ports/unix/mpthreadport.c
+index 6a267e723..23a2ec0ff 100644
+--- a/ports/unix/mpthreadport.c
++++ b/ports/unix/mpthreadport.c
+@@ -87,24 +87,24 @@ void mp_thread_unix_end_atomic_section(void) {
+ 
+ // this signal handler is used to scan the regs and stack of a thread
+ STATIC void mp_thread_gc(int signo, siginfo_t *info, void *context) {
+-    (void)info; // unused
+-    (void)context; // unused
+-    if (signo == MP_THREAD_GC_SIGNAL) {
+-        gc_helper_collect_regs_and_stack();
+-        // We have access to the context (regs, stack) of the thread but it seems
+-        // that we don't need the extra information, enough is captured by the
+-        // gc_collect_regs_and_stack function above
+-        // gc_collect_root((void**)context, sizeof(ucontext_t) / sizeof(uintptr_t));
+-        #if MICROPY_ENABLE_PYSTACK
+-        void **ptrs = (void **)(void *)MP_STATE_THREAD(pystack_start);
+-        gc_collect_root(ptrs, (MP_STATE_THREAD(pystack_cur) - MP_STATE_THREAD(pystack_start)) / sizeof(void *));
+-        #endif
+-        #if defined(__APPLE__)
+-        sem_post(thread_signal_done_p);
+-        #else
+-        sem_post(&thread_signal_done);
+-        #endif
+-    }
++    // (void)info; // unused
++    // (void)context; // unused
++    // if (signo == MP_THREAD_GC_SIGNAL) {
++    //     gc_helper_collect_regs_and_stack();
++    //     // We have access to the context (regs, stack) of the thread but it seems
++    //     // that we don't need the extra information, enough is captured by the
++    //     // gc_collect_regs_and_stack function above
++    //     // gc_collect_root((void**)context, sizeof(ucontext_t) / sizeof(uintptr_t));
++    //     #if MICROPY_ENABLE_PYSTACK
++    //     void **ptrs = (void **)(void *)MP_STATE_THREAD(pystack_start);
++    //     gc_collect_root(ptrs, (MP_STATE_THREAD(pystack_cur) - MP_STATE_THREAD(pystack_start)) / sizeof(void *));
++    //     #endif
++    //     #if defined(__APPLE__)
++    //     sem_post(thread_signal_done_p);
++    //     #else
++    //     sem_post(&thread_signal_done);
++    //     #endif
++    // }
+ }
+ 
+ void mp_thread_init(void) {
+@@ -164,23 +164,23 @@ void mp_thread_deinit(void) {
+ // the global root pointers (in mp_state_ctx) while another thread is doing a
+ // garbage collection and tracing these pointers.
+ void mp_thread_gc_others(void) {
+-    mp_thread_unix_begin_atomic_section();
+-    for (mp_thread_t *th = thread; th != NULL; th = th->next) {
+-        gc_collect_root(&th->arg, 1);
+-        if (th->id == pthread_self()) {
+-            continue;
+-        }
+-        if (!th->ready) {
+-            continue;
+-        }
+-        pthread_kill(th->id, MP_THREAD_GC_SIGNAL);
+-        #if defined(__APPLE__)
+-        sem_wait(thread_signal_done_p);
+-        #else
+-        sem_wait(&thread_signal_done);
+-        #endif
+-    }
+-    mp_thread_unix_end_atomic_section();
++    // mp_thread_unix_begin_atomic_section();
++    // for (mp_thread_t *th = thread; th != NULL; th = th->next) {
++    //     gc_collect_root(&th->arg, 1);
++    //     if (th->id == pthread_self()) {
++    //         continue;
++    //     }
++    //     if (!th->ready) {
++    //         continue;
++    //     }
++    //     pthread_kill(th->id, MP_THREAD_GC_SIGNAL);
++    //     #if defined(__APPLE__)
++    //     sem_wait(thread_signal_done_p);
++    //     #else
++    //     sem_wait(&thread_signal_done);
++    //     #endif
++    // }
++    // mp_thread_unix_end_atomic_section();
+ }
+ 
+ mp_state_thread_t *mp_thread_get_state(void) {
+diff --git a/py/lexer.c b/py/lexer.c
+index b22cc2eae..6b28f2215 100644
+--- a/py/lexer.c
++++ b/py/lexer.c
+@@ -846,6 +846,7 @@ mp_lexer_t *mp_lexer_new(qstr src_name, mp_reader_t reader) {
+     vstr_init(&lex->vstr, 32);
+     #if MICROPY_PY_FSTRINGS
+     vstr_init(&lex->fstring_args, 0);
++    lex->fstring_args_idx = 0;
+     #endif
+ 
+     // store sentinel for first indentation level
+diff --git a/py/malloc.c b/py/malloc.c
+index efdff7539..3f3beda20 100644
+--- a/py/malloc.c
++++ b/py/malloc.c
+@@ -66,7 +66,7 @@
+ // GC is disabled.  Use system malloc/realloc/free.
+ 
+ #if MICROPY_ENABLE_FINALISER
+-#error MICROPY_ENABLE_FINALISER requires MICROPY_ENABLE_GC
++// #error MICROPY_ENABLE_FINALISER requires MICROPY_ENABLE_GC
+ #endif
+ 
+ STATIC void *realloc_ext(void *ptr, size_t n_bytes, bool allow_move) {
+@@ -109,7 +109,7 @@ void *m_malloc_maybe(size_t num_bytes) {
+ 
+ #if MICROPY_ENABLE_FINALISER
+ void *m_malloc_with_finaliser(size_t num_bytes) {
+-    void *ptr = malloc_with_finaliser(num_bytes);
++    void *ptr = malloc(num_bytes);
+     if (ptr == NULL && num_bytes != 0) {
+         m_malloc_fail(num_bytes);
+     }
+diff --git a/py/nativeglue.c b/py/nativeglue.c
+index 743ff38cc..28ac2b66b 100644
+--- a/py/nativeglue.c
++++ b/py/nativeglue.c
+@@ -314,7 +314,7 @@ const mp_fun_table_t mp_fun_table = {
+     // Additional entries for dynamic runtime, starts at index 50
+     memset,
+     memmove,
+-    gc_realloc,
++    NULL,
+     mp_printf,
+     mp_vprintf,
+     mp_raise_msg,
+diff --git a/py/stackctrl.c b/py/stackctrl.c
+index c2566ebad..0ec6ad6cd 100644
+--- a/py/stackctrl.c
++++ b/py/stackctrl.c
+@@ -46,6 +46,7 @@ void mp_stack_set_top(void *top) {
+ mp_uint_t mp_stack_usage(void) {
+     // Assumes descending stack
+     volatile int stack_dummy;
++    // fprintf(stderr, "stack_top: %p, stack_dummy: %p\n", MP_STATE_THREAD(stack_top), &stack_dummy);
+     return MP_STATE_THREAD(stack_top) - (char *)&stack_dummy;
+ }
+ 
+@@ -56,9 +57,10 @@ void mp_stack_set_limit(mp_uint_t limit) {
+ }
+ 
+ void mp_stack_check(void) {
+-    if (mp_stack_usage() >= MP_STATE_THREAD(stack_limit)) {
+-        mp_raise_recursion_depth();
+-    }
++    // fprintf(stderr, "stack usage: %lu, stack_limit: %lu\n", mp_stack_usage(), MP_STATE_THREAD(stack_limit));
++    // if (mp_stack_usage() >= MP_STATE_THREAD(stack_limit)) {
++    //     mp_raise_recursion_depth();
++    // }
+ }
+ 
+ #endif // MICROPY_STACK_CHECK
