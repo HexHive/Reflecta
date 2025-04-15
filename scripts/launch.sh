@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 function error {
     echo "$@"
@@ -92,7 +92,7 @@ function single {
         -v "$PWD/:/workspaces/Reflecta/" \
         -v "$PWD/bench:/workspaces/Reflecta/bench" \
         --tmpfs /tmp:exec \
-        -it reflecta:latest \
+        -it chibinz/reflecta:latest \
         /workspaces/Reflecta/scripts/run.fish "$fuzzer" "$target"
 }
 
