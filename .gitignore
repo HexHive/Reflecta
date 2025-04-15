@@ -6,6 +6,7 @@ output/
 corpus/
 folder/
 targets/
+targets
 eval/
 __pycache__/
 

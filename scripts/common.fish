@@ -5,9 +5,7 @@ set driverdir $workdir/drivers
 set supportdir $workdir/support
 set targetdir $workdir/targets
 
-
-if rmdir $targetdir &> /dev/null
-    echo "$targetdir is empty..."
+if not test -d $targetdir
     ln -s /targets/ $targetdir
 end
 
