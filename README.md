@@ -25,7 +25,7 @@ For running ablated reflecta variant Reflecta-Sem, comment out the reflection mu
 To collect the coverage, we replay the corpus of each fuzzer on a separately built SanitizerCoverage binary. To obtain the correctness rate for Reflecta, lookup `stats/*.json` in Reflecta's outputs in the bench folder. The bugs for each fuzzer are located in the `crashes` folder within each fuzzer's output directory. Coverage results and plots are saved in the `cov` folder of each fuzzer output. This process is automated by our scripts. To perform this analysis, run the following commands inside the Docker container's shell:
 
 ```sh
-docker run -w /workspaces/FuzzIR -v $PWD/bench:/workspaces/FuzzIR/bench -it reflecta:latest /usr/bin/fish
+docker run -w /workspaces/Reflecta -v $PWD/bench:/workspaces/Reflecta/bench -it reflecta:latest /usr/bin/fish
 scripts/collect.fish coverage
 ```
 
