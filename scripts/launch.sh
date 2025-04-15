@@ -86,7 +86,6 @@ function single {
     remote docker run \
         --detach \
         --name="$container" \
-        --memory=8g \
         --cpuset-cpus="$core" \
         --env "bench=$bench" \
         --env "duration=$duration" \
