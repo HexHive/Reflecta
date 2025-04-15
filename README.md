@@ -1,38 +1,104 @@
 # Reflecta
-This repo holds the artifact for [REFLECTA: Reflection-based Scalable and Semantic Scripting Language Fuzzing](https://nebelwelt.net/files/25AsiaCCS.pdf), published in [AsiaCCS 2025](https://asiaccs2025.hust.edu.vn/).
 
-## Reproducing
-### Setup
+This repo holds the artifact for [REFLECTA: Reflection-based Scalable and
+Semantic Scripting Language Fuzzing](https://nebelwelt.net/files/25AsiaCCS.pdf),
+published in [AsiaCCS 2025](https://asiaccs2025.hust.edu.vn/).
+
+Reflecta, our novel scripting language fuzzer, relies solely on a common
+introspection feature in programming languages, namely reflection, enabling a
+generic fuzzer design across different scripting languages.
+
+Supported fuzzers include reflecta, nautilus, polyglot, polyglot+corpus, and
+fuzzilli, and supported targets are ruby, mruby, cpython, micropython, php, and
+v8. For polyglot+corpus, set the corpus path to
+[OMH4ck/Polyglot-Grammar](https://github.com/OMH4ck/PolyGlot-Grammar/tree/main/php/corpus).
+
+|             | reflecta | nautilus | polyglot | polyglot-corpus | fuzzilli |
+|:-----------:|:--------:|:--------:|:--------:|:---------------:|:--------:|
+|     ruby    |    Y     |    Y     |    Y     |        Y        |    -     |
+|    mruby    |    Y     |    Y     |    Y     |        Y        |    -     |
+|   cpython   |    Y     |    Y     |    Y     |        Y        |    -     |
+| micropython |    Y     |    Y     |    Y     |        Y        |    -     |
+|     php     |    Y     |    Y     |    Y     |        Y        |    -     |
+|      v8     |    Y     |    Y     |    Y     |        Y        |    Y     |
+
+We provide a docker image that contains everything and is available for everyone
+to use.
 
 ```sh
 git clone https://github.com/HexHive/Reflecta
 docker pull chibinz/reflecta:latest
 ```
 
+We update specifications for nautilus to support XXX and polyglot to support
+XXX. The grammars we provided for nautilus and polyglot can be found at
+`dockerimage:/targets/{nautilus,polyglot}/grammars`. We use existing grammars
+provided by the authors if available, otherwise adapting them from the
+`https://github.com/antlr/grammars-v4` following nautilus and polyglot's
+instructions, (mostly adding some builtin names and preambles).
+
+Note that the syntax of Python is not context-free due to the indentation rule.
+We address this at the lexical stage by introducing two special tokens: INDENT
+and DEDENT, which act similarly to curly braces that enclose the indented block.
+We modify the Python grammar (for nautilus and polyglot) to produce INDENT and
+DEDENT verbatim in the generated code and then augment our fuzzing driver to
+replace these two tokens with the correct indentation before passing to the
+interpreter for execution.
+
+## Reproducing
+
 ### Running fuzzing campaigns
-To facilitate the launching of fuzzing campaigns for multiple fuzzer-target pairs, we provide the launch.fish script. This script requires three arguments: the first two are comma-delimited lists of fuzzers and targets, respectively, without spaces after commas, and the third is an optional argument indicating the number of repetitions, which defaults to 1. The script automatically detects and binds containers to free CPU cores. For optimal performance, we recommend disabling hyperthreads and using only physical cores. Before running the command, ensure you are in the directory containing `launch.fish`.
+
+To launch fuzzing campaigns for multiple fuzzer-target pairs, we provide the
+launch.sh script with three arguments.
+
+- the first are comma-delimited lists of fuzzers, without spaces after commas
+- the first are comma-delimited lists of targets, without spaces after commas
+- the third is an optional argument indicating the number of repetitions, which defaults to 1
+
+The script automatically detects and binds containers to free CPU cores. For
+optimal performance, we recommend disabling hyperthreads and using only physical
+cores. Before running the command, ensure you are in the root directory of this
+repo.
 
 ```sh
 cd Reflecta
 scripts/launch.sh reflecta,nautilus,polyglot mruby,cpython,v8 1
 ```
 
-Supported fuzzers include reflecta, nautilus, polyglot, fuzzilli, and supported targets are ruby, mruby, cpython, micropython, php, v8. By default, campaigns last 23 hours, and the fuzzer output for each fuzzer-target pair is saved in the `./bench/` folder (automatically mounted into each docker container by `launch.fish`).
+By default, campaigns last 24 hours. Alternatively, run `env duration=24h
+scripts/launch.sh` to set a specific timeout.
 
-For running ablated reflecta variant Reflecta-Sem, comment out the reflection mutator in `main.swift`. For Reflecta+Ext, use `JavaScriptEnvironment` (provided by original fuzzilli) instead of `ReflectionEnvironment` (implemented by reflecta).
+The fuzzer output for each fuzzer-target pair is saved in the `./bench/` folder
+(automatically mounted into each docker container by `scripts/launch.sh`).
 
-### Collecting Results
-To collect the coverage, we replay the corpus of each fuzzer on a separately built SanitizerCoverage binary. To obtain the correctness rate for Reflecta, lookup `stats/*.json` in Reflecta's outputs in the bench folder. The bugs for each fuzzer are located in the `crashes` folder within each fuzzer's output directory. Coverage results and plots are saved in the `cov` folder of each fuzzer output. This process is automated by our scripts. To perform this analysis, run the following commands inside the Docker container's shell:
+For running ablated reflecta variant Reflecta-Sem, comment out the reflection
+mutator in `main.swift`. For Reflecta+Ext, use `JavaScriptEnvironment` (provided
+by original fuzzilli) instead of `ReflectionEnvironment` (implemented by
+reflecta).
+
+### Collecting results
+
+To collect the coverage, we replay the corpus of each fuzzer on a separately
+built SanitizerCoverage binary. This process is automated by our scripts.
+
+- To obtain the correctness rate for Reflecta, lookup `stats/*.json` in
+Reflecta's outputs in the bench folder.
+
+- The bugs for each fuzzer are located in the `crashes` folder within each
+fuzzer's output directory.
+
+- Coverage results and plots are saved in the `cov` folder of each fuzzer
+output.
+
+To manually perform this analysis, run the following commands inside the Docker
+container's shell:
 
 ```sh
-docker run -w /workspaces/FuzzIR -v $PWD/bench:/workspaces/FuzzIR/bench -it reflecta:latest /usr/bin/fish
+docker run -w /workspaces/Reflecta -v $PWD/bench:/workspaces/Reflecta/bench -it chibinz/reflecta:latest /usr/bin/fish
+
 scripts/collect.fish coverage
 ```
-
-### Specifications for Nautilus and Polyglot
-The grammars we provided for nautilus and polyglot can be found at `targets/{nautilus,polyglot}/grammars`. We use existing grammars provided by the authors if available, otherwise adapting them from the `https://github.com/antlr/grammars-v4` following nautilus and polyglot's instructions, (mostly adding some builtin names and preambles)
-Note that the syntax of Python is not context-free due to the indentation rule.This can be resolved at the lexical stage by introducing two special tokens: INDENT and DEDENT, which act similarly to curly braces that enclose the indented block. We modify the Python grammar (for Nautilus and Polyglot) to produce INDENT and DEDENT verbatim in the generated code and then augment our fuzzing driver to replace these two tokens with the correct indentation before passing to the interpreter for execution. For Polyglot+Corpus, we use the corpuse at [OMH4ck/Polyglot-Grammar](https://github.com/OMH4ck/PolyGlot-Grammar/tree/main/php/corpus)
-
 
 ## Developing / Building from scratch
 We provide a Dockerfile for automating dependencies setup. VSCode should automatically detect the presence of `.devcontainer/` folder and automatically shows a pop up, prompting you to build and a launch container. If you're using a different editor, you can `docker build` the image and mount the workspace folder accordingly. Scripts for building targets or fuzzers can be found at `scripts/build.fish`. The persistent fuzz drivers source can be found at `drivers/`. For example, if you want to build `polyglot` fuzzer, run `scripts/build.fish polyglot-fuzzer`. If you want build afl instrumented binary for `mruby` (which is used by nautilus), run `scripts/build.fish aflplusplus mruby`. The installed binary together with fuzz driver can be found in the `targets/` directory.
