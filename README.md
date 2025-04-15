@@ -1,5 +1,5 @@
 # Reflecta
-This repo holds the artifact for [REFLECTA: Reflection-based Scalable and Semantic Scripting Language Fuzzing](https://nebelwelt.net/files/25AsiaCCS.pdf), published in AsiaCCS 2025.
+This repo holds the artifact for [REFLECTA: Reflection-based Scalable and Semantic Scripting Language Fuzzing](https://nebelwelt.net/files/25AsiaCCS.pdf), published in [AsiaCCS 2025](https://asiaccs2025.hust.edu.vn/).
 
 ## Reproducing
 ### Setup
