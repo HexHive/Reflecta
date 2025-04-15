@@ -63,6 +63,7 @@ repo.
 
 ```sh
 cd Reflecta
+sudo sysctl -w 'kernel.core_pattern=|/bin/false'
 scripts/launch.sh reflecta,nautilus,polyglot mruby,cpython,v8 1
 ```
 
