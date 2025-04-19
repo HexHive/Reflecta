@@ -82,8 +82,8 @@ function single {
     fi
 
     echo -n "$container: "
-
-    remote docker run \
+    container_id=$(
+    docker run \
         --detach \
         --name="$container" \
         --cpuset-cpus="$core" \
@@ -94,6 +94,10 @@ function single {
         --tmpfs /tmp:exec \
         -it chibinz/reflecta:latest \
         /workspaces/Reflecta/scripts/run.fish "$fuzzer" "$target"
+    )
+    container_id=$(cut -c-12 <<< $container_id)
+    echo $container_id
+    docker logs -f "$container_id" &> logs/$container.log &
 }
 
 function multiple {
