@@ -8,9 +8,9 @@ Reflecta, our novel scripting language fuzzer, relies solely on a common
 introspection feature in programming languages, namely reflection, enabling a
 generic fuzzer design across different scripting languages.
 
-Supported fuzzers include reflecta, nautilus, polyglot, polyglot+corpus, and
+Supported fuzzers include reflecta, nautilus, polyglot, polyglot-corpus, and
 fuzzilli, and supported targets are ruby, mruby, cpython, micropython, php, and
-v8. For polyglot+corpus, set the corpus path to
+v8. For polyglot-corpus, set the corpus path to
 [OMH4ck/Polyglot-Grammar](https://github.com/OMH4ck/PolyGlot-Grammar/tree/main/php/corpus).
 
 |             | reflecta | nautilus | polyglot | polyglot-corpus | fuzzilli |
@@ -30,8 +30,8 @@ git clone https://github.com/HexHive/Reflecta
 docker pull chibinz/reflecta:latest
 ```
 
-We update specifications for nautilus to support XXX and polyglot to support
-XXX. The grammars we provided for nautilus and polyglot can be found at
+We update specifications for nautilus and polyglot.
+The grammars we provided for nautilus and polyglot can be found at
 `dockerimage:/targets/{nautilus,polyglot}/grammars`. We use existing grammars
 provided by the authors if available, otherwise adapting them from the
 `https://github.com/antlr/grammars-v4` following nautilus and polyglot's
@@ -64,7 +64,7 @@ repo.
 ```sh
 cd Reflecta
 sudo sysctl -w 'kernel.core_pattern=|/bin/false'
-scripts/launch.sh reflecta,nautilus,polyglot mruby,cpython,v8 1
+./scripts/launch.sh reflecta,nautilus,polyglot mruby,cpython,v8 1
 ```
 
 By default, campaigns last 24 hours. Alternatively, run `env duration=24h
