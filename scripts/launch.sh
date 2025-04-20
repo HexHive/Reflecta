@@ -29,7 +29,7 @@ function assert_exists {
 }
 
 function get_available_cores {
-    seq 0 $(nproc)
+    seq 0 $(( $(nproc) - 1 ))
 }
 
 function remote {
@@ -47,7 +47,6 @@ function get_idle_core {
         | cut -d"-" -f3)
 
     local occupied_cores=$(echo "$top_occupied_cores" "$docker_occupied_cores" \
-        $(echo "$used" | tr " " "\n" | cut -d"-" -f2) \
         | tr '[:space:]' '|' \
         | xargs printf '^(%s)$')
 
@@ -55,17 +54,13 @@ function get_idle_core {
         | grep -vE "$occupied_cores" \
         | head -n 1)
 
-    if [ -n "$c" ]; then
-        core="$c"
-        used="$used $c"
-        return
-    fi
-
-    error "No idle core found!"
+    core="$c"
 }
 
 function single {
-    get_idle_core
+    while test -z "$core"; do
+        get_idle_core
+    done
 
     fuzzer="$1"
     target="$2"
