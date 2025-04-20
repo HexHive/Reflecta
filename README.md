@@ -10,17 +10,16 @@ generic fuzzer design across different scripting languages.
 
 Supported fuzzers include reflecta, nautilus, polyglot, polyglot-corpus, and
 fuzzilli, and supported targets are ruby, mruby, cpython, micropython, php, and
-v8. For polyglot-corpus, set the corpus path to
-[OMH4ck/Polyglot-Grammar](https://github.com/OMH4ck/PolyGlot-Grammar/tree/main/php/corpus).
+v8.
 
 |             | reflecta | nautilus | polyglot | polyglot-corpus | fuzzilli |
 |:-----------:|:--------:|:--------:|:--------:|:---------------:|:--------:|
-|     ruby    |    Y     |    Y     |    Y     |        Y        |    -     |
-|    mruby    |    Y     |    Y     |    Y     |        Y        |    -     |
-|   cpython   |    Y     |    Y     |    Y     |        Y        |    -     |
-| micropython |    Y     |    Y     |    Y     |        Y        |    -     |
+|     ruby    |    Y     |    Y     |    Y     |        -        |    -     |
+|    mruby    |    Y     |    Y     |    Y     |        -        |    -     |
+|   cpython   |    Y     |    Y     |    Y     |        -        |    -     |
+| micropython |    Y     |    Y     |    Y     |        -        |    -     |
 |     php     |    Y     |    Y     |    Y     |        Y        |    -     |
-|      v8     |    Y     |    Y     |    Y     |        Y        |    Y     |
+|      v8     |    Y     |    Y     |    Y     |        -        |    Y     |
 
 We provide a docker image that contains everything and is available for everyone
 to use.
@@ -96,8 +95,10 @@ To manually perform this analysis, run the following commands inside the Docker
 container's shell:
 
 ```sh
-docker run -w /workspaces/Reflecta -v $PWD/bench:/workspaces/Reflecta/bench -it chibinz/reflecta:latest /usr/bin/fish
-
+docker run \
+    -w /workspaces/Reflecta \
+    -v $PWD/bench:/workspaces/Reflecta/bench \
+    -it chibinz/reflecta:latest /usr/bin/fish
 scripts/collect.fish coverage
 ```
 
