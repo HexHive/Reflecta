@@ -63,7 +63,9 @@ repo.
 ```sh
 cd Reflecta
 sudo sysctl -w 'kernel.core_pattern=|/bin/false'
-./scripts/launch.sh reflecta,nautilus,polyglot mruby,cpython,v8 1
+./scripts/launch.sh reflecta,nautilus,polyglot ruby,mruby,cpython,micropython,php,v8 1
+./scripts/launch.sh polyglot-corpus php 1
+./scripts/launch.sh fuzzilli v8 1
 ```
 
 By default, campaigns last 24 hours. Alternatively, run `env duration=24h
@@ -84,15 +86,13 @@ built SanitizerCoverage binary. This process is automated by our scripts.
 
 - To obtain the correctness rate for Reflecta, lookup `stats/*.json` in
 Reflecta's outputs in the bench folder.
-
 - The bugs for each fuzzer are located in the `crashes` folder within each
 fuzzer's output directory.
-
 - Coverage results and plots are saved in the `cov` folder of each fuzzer
 output.
 
-To manually perform this analysis, run the following commands inside the Docker
-container's shell:
+To manually perform this analysis, run the following commands, which will
+analyze all the fuzzing compaigns inside `bench`.
 
 ```sh
 docker run \
