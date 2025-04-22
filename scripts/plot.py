@@ -160,7 +160,6 @@ def plot_coverage_treemap(coverage, symbol, output=None):
     )
     fig.write_html(output if output else "treemap.html")
     # plotly.io.write_image(fig, 'treemap.png', format='png')
-    fig.show()
 
 
 
@@ -196,8 +195,6 @@ def plot_coverage_treemap_diff(coverage1, coverage2, symbol, output=None):
     fig.write_html(output if output else "treemap-diff.html")
 
     plotly.io.write_image(fig, "treemap-diff.pdf", format='pdf')
-
-    fig.show()
 
 
 if __name__ == "__main__":
