@@ -63,6 +63,7 @@ repo.
 ```sh
 cd Reflecta
 sudo sysctl -w 'kernel.core_pattern=|/bin/false'
+sudo su -c "echo core >/proc/sys/kernel/core_pattern"
 ./scripts/launch.sh reflecta,nautilus,polyglot ruby,mruby,cpython,micropython,php,v8 1
 ./scripts/launch.sh polyglot-corpus php 1
 ./scripts/launch.sh fuzzilli v8 1
@@ -103,7 +104,7 @@ analyze all the fuzzing compaigns inside `bench`.
 ```sh
 docker run \
     -w /workspaces/Reflecta \
-    -v $PWD/bench:/workspaces/Reflecta/bench \
+    -v $PWD:/workspaces/Reflecta \
     -it chibinz/reflecta:latest /usr/bin/fish
 scripts/collect.fish coverage
 ```
