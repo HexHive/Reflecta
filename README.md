@@ -62,11 +62,15 @@ repo.
 
 ```sh
 cd Reflecta
+# run fuzzilli-based fuzzers
 sudo sysctl -w 'kernel.core_pattern=|/bin/false'
-sudo su -c "echo core >/proc/sys/kernel/core_pattern"
-./scripts/launch.sh reflecta,nautilus,polyglot ruby,mruby,cpython,micropython,php,v8 1
-./scripts/launch.sh polyglot-corpus php 1
 ./scripts/launch.sh fuzzilli v8 1
+./scripts/launch.sh reflecta ruby,mruby,cpython,micropython,php,v8 1
+
+# run afl-based fuzzers
+sudo su -c "echo core >/proc/sys/kernel/core_pattern"
+./scripts/launch.sh nautilus,polyglot ruby,mruby,cpython,micropython,php,v8 1
+./scripts/launch.sh polyglot-corpus php 1
 ```
 
 By default, campaigns last 24 hours. Alternatively, run `env duration=24h
@@ -110,10 +114,37 @@ scripts/collect.fish coverage
 ```
 
 ## Developing / Building from scratch
-We provide a Dockerfile for automating dependencies setup. VSCode should automatically detect the presence of `.devcontainer/` folder and automatically shows a pop up, prompting you to build and a launch container. If you're using a different editor, you can `docker build` the image and mount the workspace folder accordingly. Scripts for building targets or fuzzers can be found at `scripts/build.fish`. The persistent fuzz drivers source can be found at `drivers/`. For example, if you want to build `polyglot` fuzzer, run `scripts/build.fish polyglot-fuzzer`. If you want build afl instrumented binary for `mruby` (which is used by nautilus), run `scripts/build.fish aflplusplus mruby`. The installed binary together with fuzz driver can be found in the `targets/` directory.
+
+We provide a Dockerfile for automating dependencies setup. VSCode should
+automatically detect the presence of `.devcontainer/` folder and automatically
+shows a pop up, prompting you to build and a launch container. If you're using a
+different editor, you can `docker build` the image and mount the workspace
+folder accordingly. Scripts for building targets or fuzzers can be found at
+`scripts/build.fish`. The persistent fuzz drivers source can be found at
+`drivers/`. For example, if you want to build `polyglot` fuzzer, run
+`scripts/build.fish polyglot-fuzzer`. If you want build afl instrumented binary
+for `mruby` (which is used by nautilus), run `scripts/build.fish aflplusplus
+mruby`. The installed binary together with fuzz driver can be found in the
+`targets/` directory.
 
 ## Coverage treemap of the tested targets
-One key insight while developing reflecta was that scripting languages has a very large standard library (or runtime) shipped together with it. Earlier work seems to realize the importance of builtins and standard library functionalies for achieving good coverage, but this was not spoken out explicitly :(. When people think of language features, they tend to think of syntactic or control flow features such as (yield generators, with statements, async functions, inheritance). While important, the implementation of these constructs in terms of lines of C code is smaller compared to functionalities implemented in the standard library. A great to way to visualize this is using a coverage treemap. The block size in the treemap denotes the number of edges instrumented by Sancov in each file / function, and the color indicates the percentage of covered edges (green means a majority is covered). The script for plotting the treemap can be found at `scripts/plot.py`. Note the treemap has three hierarchies: directory, file, and function. The script also outputs an html file which allows you click on each tile and see the coverage percentage for each function. You can also compare the coverage differential of two fuzzers, as shown in paper.
+
+One key insight while developing reflecta was that scripting languages has a
+very large standard library (or runtime) shipped together with it. Earlier work
+seems to realize the importance of builtins and standard library functionalies
+for achieving good coverage, but this was not spoken out explicitly :(. When
+people think of language features, they tend to think of syntactic or control
+flow features such as (yield generators, with statements, async functions,
+inheritance). While important, the implementation of these constructs in terms
+of lines of C code is smaller compared to functionalities implemented in the
+standard library. A great to way to visualize this is using a coverage treemap.
+The block size in the treemap denotes the number of edges instrumented by Sancov
+in each file / function, and the color indicates the percentage of covered edges
+(green means a majority is covered). The script for plotting the treemap can be
+found at `scripts/plot.py`. Note the treemap has three hierarchies: directory,
+file, and function. The script also outputs an html file which allows you click
+on each tile and see the coverage percentage for each function. You can also
+compare the coverage differential of two fuzzers, as shown in paper.
 
 - MRuby
 
