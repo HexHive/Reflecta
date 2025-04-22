@@ -91,6 +91,12 @@ fuzzer's output directory.
 - Coverage results and plots are saved in the `cov` folder of each fuzzer
 output.
 
+To visualize the results, please run this notebook and run all cells.
+
+```
+jupyter notebook scripts/visualize-results.ipynb
+```
+
 To manually perform this analysis, run the following commands, which will
 analyze all the fuzzing compaigns inside `bench`.
 
