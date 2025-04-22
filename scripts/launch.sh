@@ -93,7 +93,6 @@ function single {
     container_id=$(cut -c-12 <<< $container_id)
     echo $container_id
     docker logs -f "$container_id" &> logs/$container.log &
-    core=""
 }
 
 function multiple {
