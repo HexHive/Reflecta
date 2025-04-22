@@ -49,7 +49,7 @@ func makeReflectionProfile(lang: String, prefix: String) -> Profile {
                 "symbolize=0,detect_leaks=0,allocator_may_return_null=1,abort_on_error=1"
         ],
         maxExecsBeforeRespawn: 1000,
-        timeout: 300,
+        timeout: 1000,
         codePrefix: prefix,
         codeSuffix: "",
         ecmaVersion: ECMAScriptVersion.es6,
