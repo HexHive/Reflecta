@@ -137,7 +137,7 @@ function polyglot-corpus
         error "unsupported target for $fuzzer: $target"
     end
 
-    sed "s|CORPUS|$corpus|"  $supportdir/semantic.yml > /tmp/semantic.yml
+    sed "s|CORPUS|$corpus|"  $workdir/scripts/semantic.yml > /tmp/semantic.yml
 
     set -x POLYGLOT_CONFIG /tmp/semantic.yml
     set -x AFL_NO_UI 1
