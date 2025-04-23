@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 function error {
     echo "$@"
@@ -82,8 +82,8 @@ function single {
     fi
 
     echo -n "$container: "
-
-    remote docker run \
+    container_id=$(
+    docker run \
         --detach \
         --name="$container" \
         --cpuset-cpus="$core" \
@@ -92,8 +92,12 @@ function single {
         -v "$PWD/:/workspaces/Reflecta/" \
         -v "$PWD/bench:/workspaces/Reflecta/bench" \
         --tmpfs /tmp:exec \
-        -it reflecta:latest \
+        -it chibinz/reflecta:latest \
         /workspaces/Reflecta/scripts/run.fish "$fuzzer" "$target"
+    )
+    container_id=$(cut -c-12 <<< $container_id)
+    echo $container_id
+    docker logs -f "$container_id" &> logs/$container.log &
 }
 
 function multiple {

@@ -14,7 +14,7 @@ function setup
         set -g prefix "$benchdir"
     end
 
-    set_default duration 23h
+    set_default duration 24h
 
     set -g fuzzer $argv[1]
     set -g target $argv[2]

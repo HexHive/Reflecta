@@ -271,7 +271,7 @@ public class PHPLifter: Lifter {
 
             case .print:
                 let VALUE = w.retrieve(expressionFor: instr.input(0))
-                w.emit("fuzzir_print(\(VALUE));")
+                w.emit("$reflecta->print(\(VALUE));")
 
             default:
                 fatalError("Unimplemented instruction lifter: \(instr.op.opcode)")
